@@ -27,52 +27,67 @@ if sys.version_info[0] < 3:
 class PttWebCrawler(object):
 
     PTT_URL = 'https://www.ptt.cc'
+    TIME_OUT = 5
 
     """docstring for PttWebCrawler"""
-    def __init__(self, cmdline=None, as_lib=False):
-        parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter, description='''
-            A crawler for the web version of PTT, the largest online community in Taiwan.
-            Input: board name and page indices (or articla ID)
-            Output: BOARD_NAME-START_INDEX-END_INDEX.json (or BOARD_NAME-ID.json)
-        ''')
-        parser.add_argument('-b', metavar='BOARD_NAME', help='Board name', required=True)
-        group = parser.add_mutually_exclusive_group(required=True)
-        group.add_argument('-i', metavar=('START_INDEX', 'END_INDEX'), type=int, nargs=2, help="Start and end index")
-        group.add_argument('-a', metavar='ARTICLE_ID', help="Article ID")
-        parser.add_argument('-v', '--version', action='version', version='%(prog)s ' + __version__)
-        parser.add_argument('-t')
+    def __init__(self, params, as_lib=False):
+        # parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter, description='''
+        #     A crawler for the web version of PTT, the largest online community in Taiwan.
+        #     Input: board name and page indices (or articla ID)
+        #     Output: BOARD_NAME-START_INDEX-END_INDEX.json (or BOARD_NAME-ID.json)
+        # ''')
+        # parser.add_argument('-b', metavar='BOARD_NAME', help='Board name', required=True)
+        # group = parser.add_mutually_exclusive_group(required=True)
+        # group.add_argument('-i', metavar=('START_INDEX', 'END_INDEX'), type=int, nargs=2, help="Start and end index")
+        # group.add_argument('-a', metavar='ARTICLE_ID', help="Article ID")
+        # parser.add_argument('-v', '--version', action='version', version='%(prog)s ' + __version__)
+        # parser.add_argument('-t')
 
-        if not as_lib:
-            if cmdline:
-                args = parser.parse_args(cmdline)
+        # if not as_lib:
+        #     if cmdline:
+        #         args = parser.parse_args(cmdline)
+        #     else:
+        #         args = parser.parse_args()
+        #     board = args.b
+        #     if args.i:
+        #         if args.i[0] < 0:
+        #             start = self.getLastPage(board, args.i[0])
+        #         else:
+        #             start = args.i[0]
+        #         if args.i[1] < 0:
+        #             end = self.getLastPage(board, args.i[1])
+        #         else:
+        #             end = args.i[1]
+        #         self.parse_articles(start, end, board)
+        #     else:  # args.a
+        #         article_id = args.a
+        #         self.parse_article(article_id, board)
+
+        #     if DEBUG:
+        #         print('start : ' + str(start))
+        #         print('end : ' + str(end))
+        self.board = params['board']
+
+        if 'start' in params:
+            if params['start'] < 0:
+                self.start = self.getLastPage(self.board, params['start'])
             else:
-                args = parser.parse_args()
-            board = args.b
-            if args.i:
-                if args.i[0] < 0:
-                    start = self.getLastPage(board, args.i[0])
-                else:
-                    start = args.i[0]
-                if args.i[1] < 0:
-                    end = self.getLastPage(board, args.i[1])
-                else:
-                    end = args.i[1]
-                self.parse_articles(start, end, board)
-            else:  # args.a
-                article_id = args.a
-                self.parse_article(article_id, board)
+                self.start = params['start']
+            if params['end'] < 0:
+                self.end = self.getLastPage(self.board, params['end'])
+            else:
+                self.end = params['end']
 
-            if DEBUG:
-                print('start : ' + str(start))
-                print('end : ' + str(end))
+        if 'article_id' in params:
+            self.article_id = params['article_id']
 
-    def parse_articles(self, start, end, board, path='.', timeout=3):
+    def parse_articles(self, path='.', timeout=TIME_OUT):
         articles = []
-        for i in range(end-start+1):
-            index = start + i
+        for i in range(self.end-self.start+1):
+            index = self.start + i
             print('Processing index:', str(index))
             resp = requests.get(
-                url = self.PTT_URL + '/bbs/' + board + '/index' + str(index) + '.html',
+                url = self.PTT_URL + '/bbs/' + self.board + '/index' + str(index) + '.html',
                 cookies={'over18': '1'}, verify=VERIFY, timeout=timeout
             )
             if resp.status_code != 200:
@@ -86,7 +101,7 @@ class PttWebCrawler(object):
                     href = div.find('a')['href']
                     link = self.PTT_URL + href
                     article_id = re.sub('\.html', '', href.split('/')[-1])
-                    articles.append(self.parse(link, article_id, board))
+                    articles.append(self.parse(link, article_id))
                 except:
                     pass
             time.sleep(0.1)
@@ -95,14 +110,15 @@ class PttWebCrawler(object):
 
         return True
 
-    def parse_article(self, article_id, board, path='.'):
-        link = self.PTT_URL + '/bbs/' + board + '/' + article_id + '.html'
-        filename = board + '-' + article_id + '.json'
+    def parse_article(self, path='.'):
+        link = self.PTT_URL + '/bbs/' + self.board + '/' + self.article_id + '.html'
+        filename = self.board + '-' + self.article_id + '.json'
         filename = os.path.join(path, filename)
-        self.store(filename, self.parse(link, article_id, board), 'w')
+        self.store(filename, self.parse(link, self.article_id, self.board), 'w')
         return filename
 
     def TrackGame(self, articles):
+        print('hi')
         for obj in articles:
             title = obj['article_title']
             print('Processing ' + title + '...')
@@ -110,7 +126,7 @@ class PttWebCrawler(object):
                 print(obj['content'])
 
     @staticmethod
-    def parse(link, article_id, board, timeout=3):
+    def parse(link, article_id, timeout=TIME_OUT):
         print('Processing article:', article_id)
         resp = requests.get(url=link, cookies={'over18': '1'}, verify=VERIFY, timeout=timeout)
         if resp.status_code != 200:
@@ -186,7 +202,6 @@ class PttWebCrawler(object):
         # json data
         data = {
             'url': link,
-            'board': board,
             'article_id': article_id,
             'article_title': title,
             'author': author,
@@ -197,10 +212,11 @@ class PttWebCrawler(object):
             'messages': messages
         }
         # print 'original:', d
+
         return data
 
     @staticmethod
-    def getLastPage(board, idx, timeout=3):
+    def getLastPage(board, idx, timeout=TIME_OUT):
         content = requests.get(
             url= 'https://www.ptt.cc/bbs/' + board + '/index.html',
             cookies={'over18': '1'}, timeout=timeout
@@ -222,4 +238,32 @@ class PttWebCrawler(object):
             return json.load(f)
 
 if __name__ == '__main__':
-    c = PttWebCrawler()
+    parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter, description='''
+        A crawler for the web version of PTT, the largest online community in Taiwan.
+        Input: board name and page indices (or articla ID)
+        Output: BOARD_NAME-START_INDEX-END_INDEX.json (or BOARD_NAME-ID.json)
+    ''')
+    parser.add_argument('-b', metavar='BOARD_NAME', help='Board name', required=True)
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument('-i', metavar=('START_INDEX', 'END_INDEX'), type=int, nargs=2, help="Start and end index")
+    group.add_argument('-a', metavar='ARTICLE_ID', help="Article ID")
+    parser.add_argument('-v', '--version', action='version', version='%(prog)s ' + __version__)
+    parser.add_argument('-t')
+
+
+    args = parser.parse_args()
+
+    params = {
+        'board': args.b
+    }
+
+    if args.i:
+        params['start'] = args.i[0]
+        params['end'] = args.i[1]
+
+    if args.a:  # args.a
+        params['article_id'] = args.a
+
+
+    crawler = PttWebCrawler(params)
+    crawler.parse_articles()
