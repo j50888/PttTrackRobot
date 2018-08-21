@@ -31,41 +31,6 @@ class PttWebCrawler(object):
 
     """docstring for PttWebCrawler"""
     def __init__(self, params, as_lib=False):
-        # parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter, description='''
-        #     A crawler for the web version of PTT, the largest online community in Taiwan.
-        #     Input: board name and page indices (or articla ID)
-        #     Output: BOARD_NAME-START_INDEX-END_INDEX.json (or BOARD_NAME-ID.json)
-        # ''')
-        # parser.add_argument('-b', metavar='BOARD_NAME', help='Board name', required=True)
-        # group = parser.add_mutually_exclusive_group(required=True)
-        # group.add_argument('-i', metavar=('START_INDEX', 'END_INDEX'), type=int, nargs=2, help="Start and end index")
-        # group.add_argument('-a', metavar='ARTICLE_ID', help="Article ID")
-        # parser.add_argument('-v', '--version', action='version', version='%(prog)s ' + __version__)
-        # parser.add_argument('-t')
-
-        # if not as_lib:
-        #     if cmdline:
-        #         args = parser.parse_args(cmdline)
-        #     else:
-        #         args = parser.parse_args()
-        #     board = args.b
-        #     if args.i:
-        #         if args.i[0] < 0:
-        #             start = self.getLastPage(board, args.i[0])
-        #         else:
-        #             start = args.i[0]
-        #         if args.i[1] < 0:
-        #             end = self.getLastPage(board, args.i[1])
-        #         else:
-        #             end = args.i[1]
-        #         self.parse_articles(start, end, board)
-        #     else:  # args.a
-        #         article_id = args.a
-        #         self.parse_article(article_id, board)
-
-        #     if DEBUG:
-        #         print('start : ' + str(start))
-        #         print('end : ' + str(end))
         self.board = params['board']
 
         if 'start' in params:
@@ -118,7 +83,6 @@ class PttWebCrawler(object):
         return filename
 
     def TrackGame(self, articles):
-        print('hi')
         for obj in articles:
             title = obj['article_title']
             print('Processing ' + title + '...')
