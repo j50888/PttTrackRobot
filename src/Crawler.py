@@ -71,9 +71,7 @@ class PttWebCrawler(object):
                     pass
             time.sleep(0.1)
 
-        self.TrackGame(articles)
-
-        return True
+        return articles
 
     def parse_article(self, path='.'):
         link = self.PTT_URL + '/bbs/' + self.board + '/' + self.article_id + '.html'
@@ -81,13 +79,6 @@ class PttWebCrawler(object):
         filename = os.path.join(path, filename)
         self.store(filename, self.parse(link, self.article_id, self.board), 'w')
         return filename
-
-    def TrackGame(self, articles):
-        for obj in articles:
-            title = obj['article_title']
-            print('Processing ' + title + '...')
-            if 'NS' in title and '奧德賽' in title:
-                print(obj['content'])
 
     @staticmethod
     def parse(link, article_id, timeout=TIME_OUT):
