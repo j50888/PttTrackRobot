@@ -1,0 +1,17 @@
+{
+    "Tasks": [
+        {
+            "Type" : 1,
+            "board": "Gamesale",
+            "searchPages": 1,
+            "filterRule":{
+                "queryTitle": [
+                    "NS",
+                    "漆彈"
+                ],
+                "value": 1500
+            }
+        }
+    ],
+    "PollingFreq": 60
+}
