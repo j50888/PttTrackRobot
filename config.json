@@ -3,7 +3,7 @@
         {
             "Type" : 1,
             "board": "Gamesale",
-            "searchPages": 1,
+            "searchPages": 5,
             "filterRule":{
                 "queryTitle": [
                     "NS",

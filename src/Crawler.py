@@ -51,10 +51,16 @@ class PttWebCrawler(object):
         for i in range(self.end-self.start+1):
             index = self.start + i
             print('Processing index:', str(index))
-            resp = requests.get(
-                url = self.PTT_URL + '/bbs/' + self.board + '/index' + str(index) + '.html',
-                cookies={'over18': '1'}, verify=VERIFY, timeout=timeout
-            )
+
+            try:
+                resp = requests.get(
+                    url = self.PTT_URL + '/bbs/' + self.board + '/index' + str(index) + '.html',
+                    cookies={'over18': '1'}, verify=VERIFY, timeout=timeout
+                )
+            except:
+                print('Timeout! Skip this index.')
+                continue
+
             if resp.status_code != 200:
                 print('invalid url:', resp.url)
                 continue
@@ -66,7 +72,10 @@ class PttWebCrawler(object):
                     href = div.find('a')['href']
                     link = self.PTT_URL + href
                     article_id = re.sub('\.html', '', href.split('/')[-1])
-                    articles.append(self.parse(link, article_id))
+                    parseResult = self.parse(link, article_id)
+
+                    if False != parseResult:
+                        articles.append(self.parse(link, article_id))
                 except:
                     pass
             time.sleep(0.1)
@@ -83,10 +92,17 @@ class PttWebCrawler(object):
     @staticmethod
     def parse(link, article_id, timeout=TIME_OUT):
         print('Processing article:', article_id)
-        resp = requests.get(url=link, cookies={'over18': '1'}, verify=VERIFY, timeout=timeout)
+
+        try:
+            resp = requests.get(url=link, cookies={'over18': '1'}, verify=VERIFY, timeout=timeout)
+        except:
+            print("Parse article timeout!")
+            return False
+
         if resp.status_code != 200:
             print('invalid url:', resp.url)
-            return json.dumps({"error": "invalid url"}, sort_keys=True, ensure_ascii=False)
+            return False
+
         soup = BeautifulSoup(resp.text, 'html.parser')
         main_content = soup.find(id="main-content")
         metas = main_content.select('div.article-metaline')

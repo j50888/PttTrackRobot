@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import Crawler
 
 DEBUG = True
@@ -14,7 +15,6 @@ class Handler(object):
         for task in self.tasks:
             self.ProcessTask(task)
 
-    # @staticmethod
     def ProcessTask(self, task):
         crawlerParams = {
             'board': task['board'],
