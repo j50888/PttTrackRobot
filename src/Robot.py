@@ -12,7 +12,7 @@ def parseArgments():
         Input: board name and page indices (or articla ID)
         Output: BOARD_NAME-START_INDEX-END_INDEX.json (or BOARD_NAME-ID.json)
     ''')
-    parser.add_argument('-b', metavar='BOARD_NAME', help='Board name', required=True)
+    parser.add_argument('-b', metavar='BOARD_NAME', help='Board name')
     group = parser.add_mutually_exclusive_group()
     group.add_argument('-i', metavar=('START_INDEX', 'END_INDEX'), type=int, nargs=2, help="Start and end index")
     group.add_argument('-a', metavar='ARTICLE_ID', help="Article ID")
@@ -21,9 +21,10 @@ def parseArgments():
 
     args = parser.parse_args()
 
-    crawlerParams = {
-        'board': args.b
-    }
+    crawlerParams = {}
+
+    if args.b:
+        crawlerParams['board'] = arg.b
 
     if args.i:
         crawlerParams['start'] = args.i[0]
@@ -45,11 +46,6 @@ if __name__ == '__main__':
 
     argParams = parseArgments()
 
-    if argParams['blFromJson']:
-        crawler = Crawler.PttWebCrawler(argParams['crawlerParams'])
-        articles = crawler.parse_articles()
-        Utils.TrackGame(articles)
-    else:
-        jsonParams = Utils.ParseJson()
-        handler = TaskHandler.Handler(jsonParams)
-        handler.Dispatch()
+    jsonParams = Utils.ParseJson()
+    handler = TaskHandler.Handler(jsonParams)
+    handler.Dispatch()

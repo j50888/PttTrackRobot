@@ -52,13 +52,15 @@ class PttWebCrawler(object):
             index = self.start + i
             print('Processing index:', str(index))
 
-            try:
-                resp = requests.get(
-                    url = self.PTT_URL + '/bbs/' + self.board + '/index' + str(index) + '.html',
-                    cookies={'over18': '1'}, verify=VERIFY, timeout=timeout
-                )
-            except:
-                print('Timeout! Skip this index.')
+            reqParams = {
+                'url': self.PTT_URL + '/bbs/' + self.board + '/index' + str(index) + '.html',
+                'cookies': {'over18': '1'},
+                'verify': VERIFY,
+                'timeout': timeout
+            }
+
+            resp = self.requestsWrapper(reqParams)
+            if -1 == resp:
                 continue
 
             if resp.status_code != 200:
@@ -74,8 +76,8 @@ class PttWebCrawler(object):
                     article_id = re.sub('\.html', '', href.split('/')[-1])
                     parseResult = self.parse(link, article_id)
 
-                    if False != parseResult:
-                        articles.append(self.parse(link, article_id))
+                    if -1 != parseResult:
+                        articles.append(parseResult)
                 except:
                     pass
             time.sleep(0.1)
@@ -90,18 +92,38 @@ class PttWebCrawler(object):
         return filename
 
     @staticmethod
+    def requestsWrapper(params):
+        try:
+            resp = requests.get(**params)
+            return resp
+        except (socket.timeout, requests.exceptions.ReadTimeout):
+            print('Timeout! Skip this index.')
+        except requests.exceptions.RequestException as e:
+            print(e)
+        except:
+            print('Unkwon Error.')
+
+        return -1
+
+    @staticmethod
     def parse(link, article_id, timeout=TIME_OUT):
         print('Processing article:', article_id)
 
-        try:
-            resp = requests.get(url=link, cookies={'over18': '1'}, verify=VERIFY, timeout=timeout)
-        except:
-            print("Parse article timeout!")
-            return False
+
+        reqParams = {
+            'url': link,
+            'cookies': {'over18': '1'},
+            'verify': VERIFY,
+            'timeout': timeout
+        }
+
+        resp = PttWebCrawler.requestsWrapper(reqParams)
+        if -1 == resp:
+            return -1
 
         if resp.status_code != 200:
             print('invalid url:', resp.url)
-            return False
+            return -1
 
         soup = BeautifulSoup(resp.text, 'html.parser')
         main_content = soup.find(id="main-content")
