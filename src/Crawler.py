@@ -96,12 +96,14 @@ class PttWebCrawler(object):
         try:
             resp = requests.get(**params)
             return resp
+        except req.raise_for_status():
+            print('Error: Invalid Response Error.')
         except (socket.timeout, requests.exceptions.ReadTimeout):
-            print('Timeout! Skip this index.')
+            print('Error: Timeout.')
         except requests.exceptions.RequestException as e:
             print(e)
         except:
-            print('Unkwon Error.')
+            print('Error: Unknown.')
 
         return -1
 
