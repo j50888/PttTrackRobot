@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import Crawler
 import EmailSender
+import re
 
 DEBUG = True
 
@@ -10,7 +11,6 @@ class Handler(object):
 
     def __init__(self, jsonParams):
         self.tasks = jsonParams['tasks']
-        self.pollingFreq = jsonParams['pollingFreq']
         self.emailSender = EmailSender.Sender(jsonParams['gmailInfo'])
 
     def Dispatch(self):
@@ -37,15 +37,10 @@ class Handler(object):
                 continue
 
             for target in filterRule["multiTarget"]:
-                if self._IsContainKeyword(article['article_title'], target["title"]):
-                    value = target['value']
-                    keywordBeforeValue = target['keywordBeforeValue']
-
-
-            self.emailSender.notifyClient(article, self.LOW_PRICE_TASK)
-            print('found!')
-            print(article['content'])
-
+                if self._IsContainKeyword(article['article_title'], target["title"]) and \
+                   self._IsLowPrice(article['content'], target['value'], target['keywordBeforeValue']):
+                    self.emailSender.notifyClient(article, self.LOW_PRICE_TASK)
+                    print('Detect!')
 
     @staticmethod
     def _IsContainEssentialKeyword(article, filterRule):
@@ -78,5 +73,10 @@ class Handler(object):
 
     @staticmethod
     def _IsLowPrice(content, value, keywordBeforeValue):
-        #TODO
-        return True
+        nums = [int(s) for s in re.findall(r'\d+', content)]
+
+        for num in nums:
+            if num < value and num > 100:
+                return True
+
+        return False

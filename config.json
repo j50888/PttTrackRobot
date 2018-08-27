@@ -1,17 +1,48 @@
 {
-    "Tasks": [
+    "tasks": [
         {
-            "Type" : 1,
+            "type" : "LowPriceDetection",
             "board": "Gamesale",
             "searchPages": 5,
             "filterRule":{
-                "queryTitle": [
-                    "NS",
-                    "漆彈"
-                ],
-                "value": 1500
+                "essential": {
+                    "title": [
+                        "售",
+                        "NS"
+                    ],
+                    "content":[]
+                },
+                "multiTarget": [
+                    {
+                        "title": [
+                            "薩爾達"
+                        ],
+                        "keywordBeforeValue": "not effect now",
+                        "value": 1350
+                    },
+                    {
+                        "title": [
+                            "奧德賽"
+                        ],
+                        "keywordBeforeValue": "not effect now",
+                        "value": 1200
+                    },
+                    {
+                        "title": [
+                            "煮過頭"
+                        ],
+                        "keywordBeforeValue": "not effect now",
+                        "value": 800
+                    }
+                ]
             }
         }
     ],
-    "PollingFreq": 60
+    "gmailInfo": {
+        "smtp": {
+            "account": "xxx@gmail.com",
+            "password": "xxx"
+        },
+        "receiverEmailAddress": "xxx@gmail.com"
+    }
 }
