@@ -26,7 +26,7 @@ class Sender:
         message['From'] = Header("PttTrackRobot", 'utf-8')
         message['To'] =  Header("User", 'utf-8')
 
-        subject = '[PttTracker] Article ' + jsonArticle['article_title'] + ' tracked!'
+        subject = '[PttTracker] ' + jsonArticle['article_title'] + ' tracked!'
         message['Subject'] = Header(subject, 'utf-8')
 
         try:

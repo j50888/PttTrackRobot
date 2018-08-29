@@ -29,14 +29,16 @@ class Handler(object):
         articles = crawler.parse_articles()
 
         if self.LOW_PRICE_TASK == task['type']:
-            self.HandleLowPriceTask(articles, task['filterRule'])
+            self.HandleLowPriceTask(articles, task)
 
-    def HandleLowPriceTask(self, articles, filterRule):
+    def HandleLowPriceTask(self, articles, taskInfo):
+        # with open(taskInfo['board'] + '.cache')
+
         for article in articles:
-            if not self._IsContainEssentialKeyword(article, filterRule):
+            if not self._IsContainEssentialKeyword(article, taskInfo['filterRule']):
                 continue
 
-            for target in filterRule["multiTarget"]:
+            for target in taskInfo['filterRule']["multiTarget"]:
                 if self._IsContainKeyword(article['article_title'], target["title"]) and \
                    self._IsLowPrice(article['content'], target['value'], target['keywordBeforeValue']):
                     self.emailSender.notifyClient(article, self.LOW_PRICE_TASK)

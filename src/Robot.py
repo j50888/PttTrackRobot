@@ -31,7 +31,7 @@ if __name__ == '__main__':
     if 'configPath' in argParams:
         jsonParams = Utils.ParseJson(argParams['configPath'])
     else:
-        Utils.ParseJson()
+        jsonParams = Utils.ParseJson()
 
     handler = TaskHandler.Handler(jsonParams)
     handler.Dispatch()
