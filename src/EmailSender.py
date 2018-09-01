@@ -36,4 +36,4 @@ class Sender:
             smtpObj.sendmail(sender, receivers, message.as_string())
             print ("Send to", self.mailRecevier)
         except smtplib.SMTPException:
-            print ("Error: 无法发送邮件")
+            print ("Error: Send email failed.")

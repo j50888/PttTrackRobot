@@ -13,8 +13,6 @@ import codecs
 from bs4 import BeautifulSoup
 from six import u
 
-DEBUG = True
-
 __version__ = '1.0'
 
 # if python 2, disable verify flag in requests.get()
@@ -206,7 +204,6 @@ class PttWebCrawler(object):
             'message_count': message_count,
             'messages': messages
         }
-        # print 'original:', d
 
         return data
 
@@ -256,7 +253,7 @@ if __name__ == '__main__':
         params['start'] = args.i[0]
         params['end'] = args.i[1]
 
-    if args.a:  # args.a
+    if args.a:
         params['article_id'] = args.a
 
 

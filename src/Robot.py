@@ -13,7 +13,6 @@ def parseArgments():
     ''')
     parser.add_argument('-c', '--config', help='config path')
     parser.add_argument('-v', '--version', action='version', version='%(prog)s ' + __version__)
-    parser.add_argument('-t')
 
     args = parser.parse_args()
 

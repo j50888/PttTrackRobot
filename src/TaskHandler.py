@@ -3,8 +3,6 @@ import Crawler
 import EmailSender
 import re
 
-DEBUG = True
-
 class Handler(object):
 
     LOW_PRICE_TASK = "LowPriceDetection"

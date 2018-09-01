@@ -16,3 +16,5 @@ Future
 * 更多 task 種類
 * 更多 notify 方式
 * 支援 python schedule jobs
+* sent task cache
+* logger

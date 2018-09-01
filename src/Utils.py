@@ -3,7 +3,7 @@ import json
 import os
 from pprint import pprint
 
-DEBUG = True
+DEBUG = False
 
 def TrackGame(articles):
     for obj in articles:
